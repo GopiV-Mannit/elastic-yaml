@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: dev
+  name: elastic-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elastic-backend
+  template:
+    metadata:
+      labels:
+        name: elastic-backend
+        app: elastic-backend
+        version: 1.0.0
+    spec:
+      nodeName: mannit-4gb-nbg1-1
+      containers:
+      - args:
+         - sh
+         - -c
+         - cd /usr/src/app &&  npm install && npm run elastic
+        image: node:alpine
+        name: elastic-backend
+        ports:
+        - containerPort: 8000
+          name: elastic-1
+        resources:
+          requests:
+            cpu: 300m
+            memory: 200Mi
+        volumeMounts:
+        - mountPath: /usr/src/app
+          name: elastic-backend-pv-claim
+        workingDir: /usr/src/app
+      restartPolicy: Always
+      volumes:
+      - name: elastic-backend-pv-claim
+        persistentVolumeClaim:
+          claimName: elastic-backend-pv-claim
+
+
+
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: dev
+  name: elastic-backend
+spec:
+  type: NodePort
+  ports:
+  - name: "elastic-1"
+    port: 8000
+    targetPort: 8000
+  selector:
+    app: elastic-backend

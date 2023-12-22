@@ -1,0 +1,62 @@
+# Updated Elastic Frontend Deployment YAML
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: dev
+  name: elastic-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elastic-frontend
+  template:
+    metadata:
+      labels:
+        name: elastic-frontend
+        app: elastic-frontend
+        version: 1.0.0
+    spec:
+      nodeName: mannit-4gb-nbg1-1
+      containers:
+      - args:
+         - sh
+         - -c
+         - cd /usr/src/app && npm install && npm start
+        image: node:alpine  # Replace with your actual Docker image name
+        name: elastic-frontend
+        ports:
+        - containerPort: 3000
+          name: elasticaddress
+        resources:
+          requests:
+            cpu: 300m
+            memory: 200Mi
+        volumeMounts:
+        - mountPath: /usr/src/app
+          name: elastic-frontend-pv-claim
+        workingDir: /usr/src/app
+      restartPolicy: Always
+      volumes:
+      - name: elastic-frontend-pv-claim
+        persistentVolumeClaim:
+          claimName: elastic-frontend-pv-claim
+
+---
+# Updated Elastic Frontend Service YAML
+
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: dev
+  name: elastic-frontend
+spec:
+  type: NodePort
+  ports:
+  - name: "elasticaddress-1"
+    port: 3000
+    targetPort: 3000
+    #nodePort: 32202
+  selector:
+    app: elastic-frontend
+

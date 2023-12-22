@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: elasticbackend-ingress
+  namespace: dev
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: backendelasticsearch.mannit.co  # Replace with your actual domain
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: elastic-backend
+            port:
+              number: 8000
+

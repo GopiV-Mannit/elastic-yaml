@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: elasticfrontend-ingress
+  namespace: dev
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: frontendelasticsearch.mannit.co
+    http:
+      paths:
+      - backend:
+          service:
+            name: elastic-frontend
+            port:
+              number: 3000
+        path: /
+        pathType: ImplementationSpecific
